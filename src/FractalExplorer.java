@@ -8,16 +8,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Main application class for the Fractal Explorer.
- * Coordinates all components and handles application-level events.
- */
 public class FractalExplorer extends JFrame 
     implements FractalRenderer.RenderListener, 
                FractalPanel.InteractionListener,
                ControlPanel.ControlListener {
-    
-    // Core components
+
     private final FractalCalculator calculator;
     private final ColorPalette palette;
     private final FractalRenderer renderer;
@@ -26,23 +21,18 @@ public class FractalExplorer extends JFrame
     private VideoRecorder videoRecorder;
     private final BookmarkManager bookmarkManager;
 
-    // UI components
     private final FractalPanel fractalPanel;
     private final ControlPanel controlPanel;
     private final JLabel statusLabel;
-    
-    // Display settings
+
     private int width = 800;
     private int height = 800;
-    
-    // Auto iteration scaling
+
     private boolean autoIterations = true;
     private int baseIterations = 256;
 
-    // Animated rendering
     private boolean animatedRender = true;
-    
-    // Julia preview state
+
     private boolean juliaPreviewActive = false;
     
     public FractalExplorer() {
@@ -50,10 +40,8 @@ public class FractalExplorer extends JFrame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Apply Material theme
         getContentPane().setBackground(MaterialTheme.BG_DARK);
 
-        // Initialize core components
         calculator = new FractalCalculator();
         palette = new ColorPalette();
         renderer = new FractalRenderer(calculator, palette);
@@ -64,16 +52,13 @@ public class FractalExplorer extends JFrame
         renderer.setSize(width, height);
         renderer.setRenderListener(this);
 
-        // Create fractal panel
         fractalPanel = new FractalPanel(renderer, orbitCalculator);
         fractalPanel.setPreferredSize(new Dimension(width, height));
         fractalPanel.setInteractionListener(this);
         add(fractalPanel, BorderLayout.CENTER);
 
-        // Create video recorder
         videoRecorder = new VideoRecorder(fractalPanel);
 
-        // Create control panel with scroll support
         controlPanel = new ControlPanel();
         controlPanel.setControlListener(this);
         JScrollPane controlScroll = new JScrollPane(controlPanel);
@@ -85,16 +70,13 @@ public class FractalExplorer extends JFrame
         controlScroll.setBackground(MaterialTheme.BG_DARK);
         add(controlScroll, BorderLayout.EAST);
 
-        // Create status bar with Material styling
         statusLabel = MaterialTheme.createStatusBar();
         statusLabel.setText("Ready - Scroll to zoom, drag to pan, hold J for Julia preview");
         add(statusLabel, BorderLayout.SOUTH);
-        
-        // Pack and center window
+
         pack();
         setLocationRelativeTo(null);
 
-        // Clean up audio on close
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -102,10 +84,8 @@ public class FractalExplorer extends JFrame
             }
         });
 
-        // Load saved bookmarks
         updateBookmarkList();
 
-        // Initial render
         SwingUtilities.invokeLater(() -> {
             fractalPanel.requestFocusInWindow();
             render();
@@ -158,9 +138,7 @@ public class FractalExplorer extends JFrame
             renderer.renderProgressive();
         }
     }
-    
-    // ========== FractalRenderer.RenderListener ==========
-    
+
     @Override
     public void onRenderProgress(BufferedImage image, int percentComplete) {
         fractalPanel.repaint();
@@ -174,44 +152,32 @@ public class FractalExplorer extends JFrame
         updateStatus(String.format("Rendered in %dms | Zoom: %.2e | Iter: %d%s", 
             elapsedMs, renderer.getZoom(), calculator.getMaxIterations(), aa));
     }
-    
-    // ========== FractalPanel.InteractionListener ==========
-    
+
     @Override
     public void onViewChanged() {
         controlPanel.updateCenter(renderer.getCenterX(), renderer.getCenterY());
-        
-        // Auto-scale iterations based on zoom level
+
         if (autoIterations) {
             updateAutoIterations();
         }
         
         render();
     }
-    
-    /**
-     * Calculate iterations based on zoom level.
-     * Deeper zooms need more iterations to show detail in minibrots.
-     */
+
     private void updateAutoIterations() {
         double zoom = renderer.getZoom();
 
-        // Balanced scaling for minibrot detail without extreme slowdown
-        // Formula: base + log10(zoom)^2.5 * 50
-        // At zoom 1e3: ~600, zoom 1e6: ~2800, zoom 1e9: ~8000, zoom 1e12: ~18000
         int scaledIter = baseIterations;
         if (zoom > 1) {
             double logZoom = Math.log10(zoom);
             scaledIter = (int) (baseIterations + Math.pow(logZoom, 2.5) * 50);
         }
 
-        // Cap at 100k for reasonable render times
         scaledIter = Math.max(baseIterations, Math.min(100000, scaledIter));
 
         calculator.setMaxIterations(scaledIter);
         controlPanel.updateIterations(scaledIter);
-        
-        // Show status for deep zoom mode
+
         if (renderer.isUsingArbitraryPrecision()) {
             int precision = BigComplex.getPrecision();
             updateStatus("Deep zoom: Using " + precision + "-digit precision (Mandelbrot only)");
@@ -253,10 +219,8 @@ public class FractalExplorer extends JFrame
         juliaPreviewActive = active;
         
         if (active) {
-            // Update Julia c field to match mouse position
             controlPanel.updateJuliaCLive(re, im);
-            
-            // Render Julia preview
+
             SwingWorker<BufferedImage, Void> worker = new SwingWorker<>() {
                 @Override
                 protected BufferedImage doInBackground() {
@@ -274,7 +238,6 @@ public class FractalExplorer extends JFrame
             };
             worker.execute();
         } else {
-            // Clear preview and optionally set Julia mode
             fractalPanel.clearJuliaPreview();
         }
     }
@@ -303,41 +266,33 @@ public class FractalExplorer extends JFrame
                 onToggleInterior();
                 break;
             case KeyEvent.VK_A:
-                // Toggle anti-aliasing
                 onAntiAliasChanged(renderer.getAntiAliasLevel() == 1);
                 break;
             case KeyEvent.VK_I:
-                // Toggle interior complexity coloring
                 onComplexityColoringChanged(!palette.isComplexityColoring());
                 break;
             case KeyEvent.VK_X:
-                // Toggle axis lines - handled by FractalPanel
                 fractalPanel.toggleAxisLines();
                 updateStatus("Axis lines: " + (fractalPanel.isShowAxisLines() ? "ON" : "OFF"));
                 break;
             case KeyEvent.VK_4:
             case KeyEvent.VK_6:
-                // Open 6D Parameter Space Explorer
                 ParameterSpaceExplorer paramExplorer = new ParameterSpaceExplorer();
                 paramExplorer.setVisible(true);
                 break;
             case KeyEvent.VK_M:
-                // Toggle sound
                 audioEngine.toggle();
                 updateStatus("Sound: " + (audioEngine.isEnabled() ? "ON" : "OFF"));
                 break;
             case KeyEvent.VK_OPEN_BRACKET:
             case KeyEvent.VK_CLOSE_BRACKET:
-                // Toggle damping like CodeParade's 'D' key
                 audioEngine.toggleDamping();
                 updateStatus("Audio damping: " + (audioEngine.isDamping() ? "ON (fade out)" : "OFF (sustain)"));
                 break;
             case KeyEvent.VK_V:
-                // Toggle video recording
                 toggleVideoRecording();
                 break;
             case KeyEvent.VK_F1:
-                // Show help dialog
                 HelpDialog.show(this);
                 break;
         }
@@ -348,7 +303,6 @@ public class FractalExplorer extends JFrame
             videoRecorder.stopRecording();
             updateStatus("Recording stopped. Saving " + videoRecorder.getFrameCount() + " frames...");
 
-            // Save in background thread
             new Thread(() -> {
                 try {
                     File outputFile = videoRecorder.save();
@@ -384,7 +338,6 @@ public class FractalExplorer extends JFrame
         Complex juliaC = calculator.getJuliaC();
         String customFormula = calculator.getCustomFormula();
 
-        // Determine starting z and c values (same logic as OrbitCalculator)
         Complex z, c, clickedPoint;
         if (juliaMode) {
             z = new Complex(x, y);
@@ -396,7 +349,6 @@ public class FractalExplorer extends JFrame
             clickedPoint = c;
         }
 
-        // Burning Ship, Perpendicular, Perpendicular Celtic: flip Y for correct orientation
         if (type == FractalType.BURNING_SHIP || type == FractalType.PERPENDICULAR ||
             type == FractalType.PERPENDICULAR_CELTIC) {
             if (juliaMode) {
@@ -406,7 +358,6 @@ public class FractalExplorer extends JFrame
             }
         }
 
-        // Special starting conditions for certain fractals
         if (type == FractalType.SFX && !juliaMode) {
             z = c;
         }
@@ -427,24 +378,18 @@ public class FractalExplorer extends JFrame
             }
         }
 
-        // Start continuous orbit calculation
         fractalPanel.startContinuousOrbit(z, c, clickedPoint, type, juliaMode, customFormula);
 
-        // Also calculate initial orbit for audio (use first few points)
         List<Complex> initialOrbit = orbitCalculator.calculateOrbit(x, y, type, juliaMode, juliaC, customFormula);
         audioEngine.setOrbit(initialOrbit);
     }
-    
-    // ========== ControlPanel.ControlListener ==========
-    
+
     @Override
     public void onFractalTypeChanged(FractalType type) {
         calculator.setFractalType(type);
 
-        // Clear orbit from previous fractal
         fractalPanel.clearOrbit();
 
-        // Set default view for this fractal
         double[] center = type.getDefaultCenter();
         renderer.setCenter(center[0], center[1]);
         renderer.setZoom(type.getDefaultZoom());
@@ -528,7 +473,6 @@ public class FractalExplorer extends JFrame
     public void onOrbitCoordinates(double x, double y) {
         calculateAndShowOrbit(x, y);
         controlPanel.updateOrbitPoint(x, y);
-        // Auto-start sound when showing orbit via coordinates
         if (!audioEngine.isEnabled()) {
             audioEngine.start();
             updateStatus(String.format("Orbit at (%.4f, %.4f) - Sound ON", x, y));
@@ -545,7 +489,7 @@ public class FractalExplorer extends JFrame
         renderer.setCenter(center[0], center[1]);
         renderer.setZoom(type.getDefaultZoom());
         controlPanel.updateCenter(center[0], center[1]);
-        controlPanel.updateFractalType(type);  // Ensure combo box matches
+        controlPanel.updateFractalType(type);
         updateStatus("Reset to " + type.getDisplayName() + " defaults");
         render();
         fractalPanel.requestFocusInWindow();
@@ -611,7 +555,7 @@ public class FractalExplorer extends JFrame
         controlPanel.updateAnimatedRender(enabled);
         updateStatus("Animated build: " + (enabled ? "ON" : "OFF"));
         if (enabled) {
-            render();  // Re-render with animation when turned on
+            render();
         }
         fractalPanel.requestFocusInWindow();
     }
@@ -649,7 +593,6 @@ public class FractalExplorer extends JFrame
     public void onLoadBookmark(int index) {
         BookmarkManager.Bookmark bookmark = bookmarkManager.getBookmark(index);
         if (bookmark != null) {
-            // Apply bookmark settings
             FractalType type = FractalType.valueOf(bookmark.fractalType);
             calculator.setFractalType(type);
             calculator.setMaxIterations(bookmark.iterations);
@@ -657,8 +600,7 @@ public class FractalExplorer extends JFrame
             calculator.setJuliaC(new Complex(bookmark.juliaCRe, bookmark.juliaCIm));
             renderer.setCenter(bookmark.centerX, bookmark.centerY);
             renderer.setZoom(bookmark.zoom);
-            
-            // Update UI
+
             controlPanel.updateFractalType(type);
             controlPanel.updateCenter(bookmark.centerX, bookmark.centerY);
             controlPanel.updateIterations(bookmark.iterations);
@@ -741,11 +683,8 @@ public class FractalExplorer extends JFrame
     private void updateStatus(String message) {
         statusLabel.setText(message);
     }
-    
-    // ========== Main ==========
 
     public static void main(String[] args) {
-        // Global exception handler to catch crashes
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             System.err.println("=== CRASH in thread " + thread.getName() + " ===");
             throwable.printStackTrace();
@@ -753,11 +692,9 @@ public class FractalExplorer extends JFrame
         });
 
         SwingUtilities.invokeLater(() -> {
-            // Use cross-platform look and feel for consistent Material styling
             try {
                 UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 
-                // Set global UI properties for Material theme
                 UIManager.put("ScrollBar.width", 10);
                 UIManager.put("ScrollBar.thumbDarkShadow", MaterialTheme.BG_LIGHT);
                 UIManager.put("ScrollBar.thumb", MaterialTheme.SURFACE_VARIANT);
@@ -768,7 +705,6 @@ public class FractalExplorer extends JFrame
                 UIManager.put("Panel.background", MaterialTheme.BG_DARK);
                 UIManager.put("OptionPane.messageForeground", MaterialTheme.TEXT_PRIMARY);
             } catch (Exception e) {
-                // Fall back to default
             }
 
             try {
