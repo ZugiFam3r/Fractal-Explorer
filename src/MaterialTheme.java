@@ -4,51 +4,38 @@ import javax.swing.plaf.basic.*;
 import java.awt.*;
 import java.awt.geom.*;
 
-/**
- * Material Design-inspired theme for Fractal Explorer.
- * Provides flat colors, rounded corners, and modern styling.
- */
 public class MaterialTheme {
 
-    // Primary colors (Blue)
-    public static final Color PRIMARY = new Color(33, 150, 243);       // Blue 500
-    public static final Color PRIMARY_DARK = new Color(25, 118, 210);  // Blue 700
-    public static final Color PRIMARY_LIGHT = new Color(100, 181, 246); // Blue 300
+    public static final Color PRIMARY = new Color(33, 150, 243);
+    public static final Color PRIMARY_DARK = new Color(25, 118, 210);
+    public static final Color PRIMARY_LIGHT = new Color(100, 181, 246);
 
-    // Accent colors
-    public static final Color ACCENT = new Color(255, 87, 34);         // Deep Orange 500
-    public static final Color ACCENT_LIGHT = new Color(255, 138, 101); // Deep Orange 300
+    public static final Color ACCENT = new Color(255, 87, 34);
+    public static final Color ACCENT_LIGHT = new Color(255, 138, 101);
 
-    // Background colors
-    public static final Color BG_DARK = new Color(38, 50, 56);         // Blue Grey 900
-    public static final Color BG_MEDIUM = new Color(55, 71, 79);       // Blue Grey 800
-    public static final Color BG_LIGHT = new Color(69, 90, 100);       // Blue Grey 700
-    public static final Color BG_CARD = new Color(55, 71, 79);         // Card background
+    public static final Color BG_DARK = new Color(38, 50, 56);
+    public static final Color BG_MEDIUM = new Color(55, 71, 79);
+    public static final Color BG_LIGHT = new Color(69, 90, 100);
+    public static final Color BG_CARD = new Color(55, 71, 79);
 
-    // Surface colors
     public static final Color SURFACE = new Color(48, 63, 70);
     public static final Color SURFACE_VARIANT = new Color(60, 78, 87);
 
-    // Text colors
     public static final Color TEXT_PRIMARY = new Color(255, 255, 255);
-    public static final Color TEXT_SECONDARY = new Color(176, 190, 197); // Blue Grey 300
+    public static final Color TEXT_SECONDARY = new Color(176, 190, 197);
     public static final Color TEXT_DISABLED = new Color(120, 144, 156);
     public static final Color TEXT_ON_PRIMARY = new Color(255, 255, 255);
 
-    // Status colors
-    public static final Color SUCCESS = new Color(76, 175, 80);        // Green 500
-    public static final Color WARNING = new Color(255, 193, 7);        // Amber 500
-    public static final Color ERROR = new Color(244, 67, 54);          // Red 500
-    public static final Color INFO = new Color(33, 150, 243);          // Blue 500
+    public static final Color SUCCESS = new Color(76, 175, 80);
+    public static final Color WARNING = new Color(255, 193, 7);
+    public static final Color ERROR = new Color(244, 67, 54);
+    public static final Color INFO = new Color(33, 150, 243);
 
-    // Divider
     public static final Color DIVIDER = new Color(255, 255, 255, 30);
 
-    // Corner radius
     public static final int CORNER_RADIUS = 8;
     public static final int CORNER_RADIUS_SMALL = 4;
 
-    // Fonts
     public static final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 18);
     public static final Font FONT_SUBTITLE = new Font("Segoe UI", Font.BOLD, 13);
     public static final Font FONT_BODY = new Font("Segoe UI", Font.PLAIN, 12);
@@ -56,25 +43,16 @@ public class MaterialTheme {
     public static final Font FONT_BUTTON = new Font("Segoe UI", Font.BOLD, 12);
     public static final Font FONT_MONO = new Font("Consolas", Font.PLAIN, 11);
 
-    /**
-     * Apply the Material theme to a JFrame
-     */
     public static void apply(JFrame frame) {
         frame.getContentPane().setBackground(BG_DARK);
     }
 
-    /**
-     * Create a styled panel with Material background
-     */
     public static JPanel createPanel() {
         JPanel panel = new JPanel();
         panel.setBackground(BG_DARK);
         return panel;
     }
 
-    /**
-     * Create a card-style panel with slight elevation effect
-     */
     public static JPanel createCard() {
         JPanel panel = new JPanel() {
             @Override
@@ -91,9 +69,6 @@ public class MaterialTheme {
         return panel;
     }
 
-    /**
-     * Create a Material-styled button
-     */
     public static JButton createButton(String text) {
         JButton button = new JButton(text) {
             private boolean hover = false;
@@ -161,9 +136,6 @@ public class MaterialTheme {
         return button;
     }
 
-    /**
-     * Create a primary (accent) colored button
-     */
     public static JButton createPrimaryButton(String text) {
         JButton button = new JButton(text) {
             private boolean hover = false;
@@ -231,9 +203,6 @@ public class MaterialTheme {
         return button;
     }
 
-    /**
-     * Create a styled text field
-     */
     public static JTextField createTextField(String text) {
         JTextField field = new JTextField(text) {
             @Override
@@ -258,27 +227,18 @@ public class MaterialTheme {
         return field;
     }
 
-    /**
-     * Create a styled text field with specified columns
-     */
     public static JTextField createTextField(String text, int columns) {
         JTextField field = createTextField(text);
         field.setColumns(columns);
         return field;
     }
 
-    /**
-     * Create a styled combo box
-     */
     public static <T> JComboBox<T> createComboBox() {
         JComboBox<T> combo = new JComboBox<>();
         styleComboBox(combo);
         return combo;
     }
 
-    /**
-     * Style an existing combo box
-     */
     public static void styleComboBox(JComboBox<?> combo) {
         combo.setBackground(SURFACE);
         combo.setForeground(TEXT_PRIMARY);
@@ -296,9 +256,6 @@ public class MaterialTheme {
         });
     }
 
-    /**
-     * Create a styled checkbox
-     */
     public static JCheckBox createCheckBox(String text) {
         JCheckBox check = new JCheckBox(text) {
             @Override
@@ -306,7 +263,6 @@ public class MaterialTheme {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Draw checkbox
                 int boxSize = 18;
                 int boxY = (getHeight() - boxSize) / 2;
 
@@ -319,7 +275,6 @@ public class MaterialTheme {
                     g2.draw(new RoundRectangle2D.Float(0.5f, boxY + 0.5f, boxSize - 1, boxSize - 1, 4, 4));
                 }
 
-                // Draw checkmark
                 if (isSelected()) {
                     g2.setColor(TEXT_ON_PRIMARY);
                     g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -327,7 +282,6 @@ public class MaterialTheme {
                     g2.drawLine(7, boxY + 13, 14, boxY + 5);
                 }
 
-                // Draw text
                 g2.setColor(TEXT_PRIMARY);
                 g2.setFont(getFont());
                 FontMetrics fm = g2.getFontMetrics();
@@ -350,9 +304,6 @@ public class MaterialTheme {
         return check;
     }
 
-    /**
-     * Create a styled label
-     */
     public static JLabel createLabel(String text) {
         JLabel label = new JLabel(text);
         label.setForeground(TEXT_SECONDARY);
@@ -360,9 +311,6 @@ public class MaterialTheme {
         return label;
     }
 
-    /**
-     * Create a section header label
-     */
     public static JLabel createSectionLabel(String text) {
         JLabel label = new JLabel(text);
         label.setForeground(TEXT_PRIMARY);
@@ -370,9 +318,6 @@ public class MaterialTheme {
         return label;
     }
 
-    /**
-     * Create a title label
-     */
     public static JLabel createTitleLabel(String text) {
         JLabel label = new JLabel(text);
         label.setForeground(PRIMARY_LIGHT);
@@ -380,9 +325,6 @@ public class MaterialTheme {
         return label;
     }
 
-    /**
-     * Create a divider line
-     */
     public static JSeparator createDivider() {
         JSeparator sep = new JSeparator() {
             @Override
@@ -396,9 +338,6 @@ public class MaterialTheme {
         return sep;
     }
 
-    /**
-     * Create a status bar
-     */
     public static JLabel createStatusBar() {
         JLabel label = new JLabel(" ") {
             @Override
@@ -417,9 +356,6 @@ public class MaterialTheme {
         return label;
     }
 
-    /**
-     * Create an info card with icon and text
-     */
     public static JPanel createInfoCard(String text) {
         JPanel panel = new JPanel() {
             @Override
@@ -443,9 +379,6 @@ public class MaterialTheme {
         return panel;
     }
 
-    /**
-     * Rounded border implementation
-     */
     public static class RoundedBorder extends AbstractBorder {
         private final int radius;
         private final Color color;
