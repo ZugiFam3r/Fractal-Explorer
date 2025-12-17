@@ -70,12 +70,15 @@ fractal-explorer/
 
 ## Building
 
-```bash
-chmod +x build.sh
-./build.sh
+### Windows
+
+```cmd
+if not exist bin mkdir bin
+javac -d bin src/*.java
 ```
 
-Or manually:
+### Linux/macOS
+
 ```bash
 mkdir -p bin
 javac -d bin src/*.java
@@ -86,6 +89,21 @@ javac -d bin src/*.java
 ```bash
 java -cp bin FractalExplorer
 ```
+
+## Create JAR (optional)
+
+```bash
+jar cfm FractalExplorer.jar MANIFEST.MF -C bin .
+java -jar FractalExplorer.jar
+```
+
+## Create Standalone EXE (Windows, requires JDK 14+)
+
+```cmd
+jpackage --type app-image --input . --main-jar FractalExplorer.jar --name FractalExplorer --dest output
+```
+
+This creates a standalone EXE with bundled JRE in the `output/FractalExplorer/` folder.
 
 ## Keyboard Shortcuts
 
