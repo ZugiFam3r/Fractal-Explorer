@@ -465,11 +465,11 @@ public class ComplexParser {
         // Check for function name followed by (
         String[] functions = {
             "sinh", "cosh", "tanh", "asinh", "acosh", "atanh",
-            "sin", "cos", "tan", "asin", "acos", "atan",
-            "sqrt", "cbrt", "exp", "log", "ln", "log10", "log2",
+            "sign", "sin", "cos", "tan", "asin", "acos", "atan",
+            "sqrt", "cbrt", "step", "exp", "log10", "log2", "log", "ln",
             "abs", "norm", "arg", "conj", "real", "imag", "re", "im",
-            "floor", "ceil", "round", "sign", "step",
-            "sec", "csc", "cot", "sech", "csch", "coth"
+            "floor", "ceil", "round",
+            "sech", "csch", "coth", "sec", "csc", "cot"
         };
         
         for (String func : functions) {
