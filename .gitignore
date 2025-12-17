@@ -19,9 +19,6 @@ nul
 .vscode/
 *.swp
 
-# Claude Code settings
-.claude/
-
 # OS files
 .DS_Store
 Thumbs.db
