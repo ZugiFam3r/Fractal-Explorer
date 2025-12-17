@@ -1,0 +1,24 @@
+# Compiled class files
+bin/
+out/
+*.class
+
+# Package files
+*.jar
+pkg/
+
+# Output/dist folder (contains EXE with bundled JRE - too large for GitHub)
+output/
+
+# Windows reserved names
+nul
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
