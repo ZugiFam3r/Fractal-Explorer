@@ -378,19 +378,24 @@ public class ControlPanel extends JPanel {
         add(MaterialTheme.createLabel("Orbit Point"));
         add(Box.createVerticalStrut(4));
 
-        JPanel orbitPanel = new JPanel(new GridLayout(1, 4, 4, 0));
+        JPanel orbitPanel = new JPanel();
+        orbitPanel.setLayout(new BoxLayout(orbitPanel, BoxLayout.X_AXIS));
         orbitPanel.setOpaque(false);
         orbitPanel.setMaximumSize(new Dimension(260, 32));
         orbitPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel xLabel = MaterialTheme.createLabel("X:");
-        orbitPanel.add(xLabel);
-        orbitXField = MaterialTheme.createTextField("-0.5", 6);
+        orbitPanel.add(MaterialTheme.createLabel("X:"));
+        orbitPanel.add(Box.createHorizontalStrut(4));
+        orbitXField = MaterialTheme.createTextField("-0.5", 5);
+        orbitXField.setMaximumSize(new Dimension(80, 28));
         orbitPanel.add(orbitXField);
 
-        JLabel yLabel = MaterialTheme.createLabel("Y:");
-        orbitPanel.add(yLabel);
-        orbitYField = MaterialTheme.createTextField("0.0", 6);
+        orbitPanel.add(Box.createHorizontalStrut(8));
+
+        orbitPanel.add(MaterialTheme.createLabel("Y:"));
+        orbitPanel.add(Box.createHorizontalStrut(4));
+        orbitYField = MaterialTheme.createTextField("0.0", 5);
+        orbitYField.setMaximumSize(new Dimension(80, 28));
         orbitPanel.add(orbitYField);
 
         add(orbitPanel);
