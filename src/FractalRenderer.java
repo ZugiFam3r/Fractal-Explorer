@@ -31,7 +31,7 @@ public class FractalRenderer {
     private boolean useArbitraryPrecision = false;
     
     // Threshold for switching to arbitrary precision (zoom level)
-    private static final double PRECISION_THRESHOLD = 1e12;  // Use perturbation theory for deep zoom
+    private static final double PRECISION_THRESHOLD = 1e14;  // Use perturbation theory for deep zoom
     
     private BufferedImage image;
     private BufferedImage juliaPreviewImage;

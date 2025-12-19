@@ -436,11 +436,24 @@ public class FractalPanel extends JPanel {
         });
         
         addMouseWheelListener(e -> {
+            double[] coords = renderer.screenToWorld(e.getX(), e.getY());
+            double mouseWorldX = coords[0];
+            double mouseWorldY = coords[1];
+
+            double oldZoom = renderer.getZoom();
+            double newZoom;
             if (e.getWheelRotation() < 0) {
-                renderer.setZoom(renderer.getZoom() * 1.3);
+                newZoom = oldZoom * 1.3;
             } else {
-                renderer.setZoom(renderer.getZoom() / 1.3);
+                newZoom = oldZoom / 1.3;
             }
+
+            double zoomFactor = newZoom / oldZoom;
+            double newCenterX = mouseWorldX + (renderer.getCenterX() - mouseWorldX) / zoomFactor;
+            double newCenterY = mouseWorldY + (renderer.getCenterY() - mouseWorldY) / zoomFactor;
+
+            renderer.setCenter(newCenterX, newCenterY);
+            renderer.setZoom(newZoom);
             notifyViewChanged();
         });
     }
