@@ -210,11 +210,23 @@ public class ParameterSpaceExplorer extends JFrame {
         
         // Mouse controls
         renderPanel.addMouseWheelListener(e -> {
+            double[] coords = screenToWorld(e.getX(), e.getY());
+            double mouseWorldX = coords[0];
+            double mouseWorldY = coords[1];
+
+            double oldZoom = zoom;
+            double newZoom;
             if (e.getWheelRotation() < 0) {
-                zoom = Math.min(zoom * 1.3, MAX_ZOOM);
+                newZoom = Math.min(oldZoom * 1.3, MAX_ZOOM);
             } else {
-                zoom /= 1.3;
+                newZoom = oldZoom / 1.3;
             }
+
+            double zoomFactor = newZoom / oldZoom;
+            centerX = mouseWorldX + (centerX - mouseWorldX) / zoomFactor;
+            centerY = mouseWorldY + (centerY - mouseWorldY) / zoomFactor;
+            zoom = newZoom;
+
             render();
         });
         
