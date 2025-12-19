@@ -1714,13 +1714,16 @@ public class ParameterSpaceExplorer extends JFrame {
 
     // Smooth iteration coloring (matches FractalCalculator)
     private double smoothIter(int n, double mag, double power) {
-        if (mag <= 0) return n;
+        if (mag <= 1) return n;
         // Use absolute value of power, minimum 1.1 to avoid log issues
         double safePower = Math.max(1.1, Math.abs(power));
-        double logZn = Math.log(mag) / 2;
         double logPower = Math.log(safePower);
-        if (logPower <= 0) return n;
-        double nu = Math.log(logZn / logPower) / logPower;
+        if (logPower < 1e-10) return n;
+        double logZn = Math.log(mag) / 2;
+        if (logZn <= 0) return n;
+        double ratio = logZn / logPower;
+        if (ratio <= 0) return n;
+        double nu = Math.log(ratio) / logPower;
         double result = n + 1 - nu;
         return (Double.isNaN(result) || Double.isInfinite(result)) ? n : result;
     }

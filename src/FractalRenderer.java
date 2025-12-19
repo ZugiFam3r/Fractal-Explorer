@@ -532,8 +532,27 @@ public class FractalRenderer {
                             iter++;
                         }
 
-                        double value = (iter == maxIter) ? maxIter :
-                            iter + 1 - Math.log(Math.log(x2 + y2) / 2 / Math.log(2)) / Math.log(2);
+                        double value;
+                        if (iter == maxIter) {
+                            value = maxIter;
+                        } else {
+                            double mag = x2 + y2;
+                            if (mag <= 1) {
+                                value = iter;
+                            } else {
+                                double logMag = Math.log(mag) / 2;
+                                double logRatio = logMag / Math.log(2);
+                                if (logRatio <= 0) {
+                                    value = iter;
+                                } else {
+                                    double nu = Math.log(logRatio) / Math.log(2);
+                                    value = iter + 1 - nu;
+                                    if (Double.isNaN(value) || Double.isInfinite(value)) {
+                                        value = iter;
+                                    }
+                                }
+                            }
+                        }
 
                         image.setRGB(px, height - 1 - py, palette.getColor(value, maxIter));
                     }

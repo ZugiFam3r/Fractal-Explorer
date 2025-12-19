@@ -641,19 +641,21 @@ public class FractalPanel extends JPanel {
         }
         
         // Draw orbit (CodeParade style - sliding window that loops forever)
-        if (orbitPoints != null && !orbitPoints.isEmpty()) {
+        List<Complex> orbitCopy = orbitPoints;
+        if (orbitCopy != null && !orbitCopy.isEmpty()) {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            int currentIndex = Math.min(orbitAnimationIndex, orbitPoints.size()) - 1;
+            int size = orbitCopy.size();
+            int currentIndex = Math.min(orbitAnimationIndex, size) - 1;
 
             // Sliding window animation
             int windowSize = 50;
             int startIndex = Math.max(0, currentIndex - windowSize);
 
-            if (currentIndex > 0) {
+            if (currentIndex > 0 && currentIndex < size) {
                 int[] prev = null;
-                for (int i = startIndex; i <= currentIndex; i++) {
-                    Complex pt = orbitPoints.get(i);
+                for (int i = startIndex; i <= currentIndex && i < size; i++) {
+                    Complex pt = orbitCopy.get(i);
                     int[] curr = renderer.worldToScreen(pt.re, pt.im);
 
                     if (prev != null) {
@@ -676,8 +678,8 @@ public class FractalPanel extends JPanel {
             }
 
             // Draw small dot at current animated point (white)
-            if (currentIndex >= 0) {
-                Complex currPt = orbitPoints.get(currentIndex);
+            if (currentIndex >= 0 && currentIndex < size) {
+                Complex currPt = orbitCopy.get(currentIndex);
                 int[] currScreen = renderer.worldToScreen(currPt.re, currPt.im);
                 g2.setColor(Color.WHITE);
                 g2.fillOval(currScreen[0] - 3, currScreen[1] - 3, 6, 6);
