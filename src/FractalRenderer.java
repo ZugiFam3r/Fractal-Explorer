@@ -784,7 +784,6 @@ public class FractalRenderer {
         final double yMin = bounds[2], yMax = bounds[3];
         final int maxIter = calculator.getMaxIterations();
         final int aa = antiAliasLevel;
-        final int repaintInterval = Math.max(4, height / 50);
 
         new Thread(() -> {
             long startTime = System.currentTimeMillis();
@@ -792,51 +791,38 @@ public class FractalRenderer {
             double pixelH = (yMax - yMin) / (height - 1);
             int[] pixels = ((java.awt.image.DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-            int numThreads = Runtime.getRuntime().availableProcessors();
-            java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(numThreads);
-            java.util.concurrent.atomic.AtomicInteger completedRows = new java.util.concurrent.atomic.AtomicInteger(0);
-
             for (int screenY = 0; screenY < height; screenY++) {
-                final int y = screenY;
-                final double wy = yMax - pixelH * y;
-                executor.submit(() -> {
-                    for (int px = 0; px < width; px++) {
-                        double wx = xMin + pixelW * px;
-                        int color;
-                        if (aa > 1) {
-                            int rSum = 0, gSum = 0, bSum = 0;
-                            int samples = aa * aa;
-                            for (int sy = 0; sy < aa; sy++) {
-                                for (int sx = 0; sx < aa; sx++) {
-                                    double offsetX = (sx + 0.5) / aa - 0.5;
-                                    double offsetY = (sy + 0.5) / aa - 0.5;
-                                    double sampleX = wx + offsetX * pixelW;
-                                    double sampleY = wy + offsetY * pixelH;
-                                    double value = calculator.calculate(sampleX, sampleY);
-                                    int c = palette.getColor(value, maxIter);
-                                    rSum += (c >> 16) & 0xFF;
-                                    gSum += (c >> 8) & 0xFF;
-                                    bSum += c & 0xFF;
-                                }
+                double wy = yMax - pixelH * screenY;
+                for (int px = 0; px < width; px++) {
+                    double wx = xMin + pixelW * px;
+                    int color;
+                    if (aa > 1) {
+                        int rSum = 0, gSum = 0, bSum = 0;
+                        int samples = aa * aa;
+                        for (int sy = 0; sy < aa; sy++) {
+                            for (int sx = 0; sx < aa; sx++) {
+                                double offsetX = (sx + 0.5) / aa - 0.5;
+                                double offsetY = (sy + 0.5) / aa - 0.5;
+                                double sampleX = wx + offsetX * pixelW;
+                                double sampleY = wy + offsetY * pixelH;
+                                double value = calculator.calculate(sampleX, sampleY);
+                                int c = palette.getColor(value, maxIter);
+                                rSum += (c >> 16) & 0xFF;
+                                gSum += (c >> 8) & 0xFF;
+                                bSum += c & 0xFF;
                             }
-                            color = 0xFF000000 | ((rSum / samples) << 16) | ((gSum / samples) << 8) | (bSum / samples);
-                        } else {
-                            double value = calculator.calculate(wx, wy);
-                            color = palette.getColor(value, maxIter);
                         }
-                        pixels[y * width + px] = color;
+                        color = 0xFF000000 | ((rSum / samples) << 16) | ((gSum / samples) << 8) | (bSum / samples);
+                    } else {
+                        double value = calculator.calculate(wx, wy);
+                        color = palette.getColor(value, maxIter);
                     }
-                    int done = completedRows.incrementAndGet();
-                    if (done % repaintInterval == 0 || done == height) {
-                        panel.repaint();
-                    }
-                });
+                    pixels[screenY * width + px] = color;
+                }
+                if (screenY % 8 == 0) {
+                    panel.repaint();
+                }
             }
-
-            executor.shutdown();
-            try {
-                executor.awaitTermination(60, java.util.concurrent.TimeUnit.SECONDS);
-            } catch (InterruptedException e) {}
 
             panel.repaint();
             long elapsed = System.currentTimeMillis() - startTime;
