@@ -829,7 +829,8 @@ public class ParameterSpaceExplorer extends JFrame {
     }
     
     private void drawOrbit(Graphics2D g2) {
-        if (orbitPoints == null || orbitPoints.isEmpty()) return;
+        List<double[]> orbitCopy = orbitPoints;
+        if (orbitCopy == null || orbitCopy.isEmpty()) return;
 
         double cx = renderPanel.getWidth() / 2.0;
         double cy = renderPanel.getHeight() / 2.0;
@@ -840,13 +841,14 @@ public class ParameterSpaceExplorer extends JFrame {
 
         // Sliding window: show only last ~50 points, fading from tail to head
         int windowSize = 50;
-        int currentIndex = Math.min(orbitAnimationIndex, orbitPoints.size()) - 1;
+        int size = orbitCopy.size();
+        int currentIndex = Math.min(orbitAnimationIndex, size) - 1;
         int startIndex = Math.max(0, currentIndex - windowSize);
 
-        if (currentIndex > 0) {
+        if (currentIndex > 0 && currentIndex < size) {
             int[] prev = null;
-            for (int i = startIndex; i <= currentIndex; i++) {
-                double[] pt = orbitPoints.get(i);
+            for (int i = startIndex; i <= currentIndex && i < size; i++) {
+                double[] pt = orbitCopy.get(i);
                 int[] curr = worldToScreen(pt[0], pt[1]);
 
                 // Apply rotation
@@ -880,8 +882,8 @@ public class ParameterSpaceExplorer extends JFrame {
         }
 
         // Draw small dot at current animated point (white)
-        if (currentIndex >= 0) {
-            double[] currPt = orbitPoints.get(currentIndex);
+        if (currentIndex >= 0 && currentIndex < size) {
+            double[] currPt = orbitCopy.get(currentIndex);
             int[] currScreen = worldToScreen(currPt[0], currPt[1]);
             double dx = currScreen[0] - cx;
             double dy = currScreen[1] - cy;
