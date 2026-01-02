@@ -79,6 +79,7 @@ public class ParameterSpaceExplorer extends JFrame {
     // Dragging
     private Point dragStart = null;
     private double dragStartCenterX, dragStartCenterY;
+    private boolean paramDragActive = false;
     
     // Animation
     private Timer animationTimer;
@@ -253,6 +254,21 @@ public class ParameterSpaceExplorer extends JFrame {
                         juliaCImag = coords[1];
                         statusLabel.setText(String.format("Julia c set to: %.4f + %.4fi", juliaCReal, juliaCImag));
                         render();
+                    } else if (e.isControlDown()) {
+                        // Ctrl+drag: adjust z0 (or Julia c in Julia mode)
+                        paramDragActive = true;
+                        if (juliaMode) {
+                            juliaCReal = coords[0];
+                            juliaCImag = coords[1];
+                            statusLabel.setText(String.format("Dragging Julia c: %.4f + %.4fi", juliaCReal, juliaCImag));
+                        } else {
+                            z0Real = coords[0];
+                            z0Imag = coords[1];
+                            z0RealField.setText(String.format("%.3f", z0Real));
+                            z0ImagField.setText(String.format("%.3f", z0Imag));
+                            statusLabel.setText(String.format("Dragging z₀: %.4f + %.4fi", z0Real, z0Imag));
+                        }
+                        render();
                     } else {
                         // Start drag to pan
                         dragStart = e.getPoint();
@@ -281,32 +297,48 @@ public class ParameterSpaceExplorer extends JFrame {
             @Override
             public void mouseReleased(MouseEvent e) {
                 dragStart = null;
+                paramDragActive = false;
             }
         });
         
         renderPanel.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                if (dragStart != null && !zoomMode && !orbitMode) {
+                if (paramDragActive) {
+                    // Ctrl+drag: continuously update z0 or Julia c
+                    double[] coords = screenToWorld(e.getX(), e.getY());
+                    if (juliaMode) {
+                        juliaCReal = coords[0];
+                        juliaCImag = coords[1];
+                        statusLabel.setText(String.format("Dragging Julia c: %.4f + %.4fi", juliaCReal, juliaCImag));
+                    } else {
+                        z0Real = coords[0];
+                        z0Imag = coords[1];
+                        z0RealField.setText(String.format("%.3f", z0Real));
+                        z0ImagField.setText(String.format("%.3f", z0Imag));
+                        statusLabel.setText(String.format("Dragging z₀: %.4f + %.4fi", z0Real, z0Imag));
+                    }
+                    render();
+                } else if (dragStart != null && !zoomMode && !orbitMode) {
                     double scale = 2.0 / zoom;
                     double aspect = (double) width / height;
-                    
+
                     double dx = (e.getX() - dragStart.x) * scale * aspect * 2 / width;
                     double dy = (e.getY() - dragStart.y) * scale * 2 / height;
-                    
+
                     // Account for rotation
                     double cos = Math.cos(-viewRotation);
                     double sin = Math.sin(-viewRotation);
                     double rdx = dx * cos - dy * sin;
                     double rdy = dx * sin + dy * cos;
-                    
+
                     centerX = dragStartCenterX - rdx;
                     centerY = dragStartCenterY + rdy;
-                    
+
                     dragStart = e.getPoint();
                     dragStartCenterX = centerX;
                     dragStartCenterY = centerY;
-                    
+
                     render();
                 }
             }
